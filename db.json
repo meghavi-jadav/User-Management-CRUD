@@ -1,0 +1,16 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "Meghavi Jadav",
+      "email": "meghavijadav@gmail.com",
+      "flag": true
+    },
+    {
+      "id": "2",
+      "name": "Vedanti Jadav",
+      "email": "vedantijadav@gmail.com",
+      "flag": true
+    }
+  ]
+}
