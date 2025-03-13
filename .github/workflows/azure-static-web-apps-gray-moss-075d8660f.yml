@@ -28,6 +28,12 @@ jobs:
 
       - name: Build React App
         run: npm run build
+
+      - name: Install JSON Server
+        run: npm install -g json-sever
+
+      - name: Start the JSON Server
+        run: json-server --watch db.json --port 5000
       
       - name: Deploy to Azure Static Web Apps
         id: builddeploy
