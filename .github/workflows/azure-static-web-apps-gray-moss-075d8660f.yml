@@ -34,7 +34,10 @@ jobs:
 
       - name: Start the JSON Server
         run: npx json-server db.json --watch --port 5000
-      
+
+      - name: Start JSON Server in Background
+        run: nohup json-server --watch db.json --port 5000 > json-server.log 2>&1 &
+
       - name: Deploy to Azure Static Web Apps
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
