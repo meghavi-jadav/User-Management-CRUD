@@ -30,7 +30,7 @@ jobs:
         run: npm run build
 
       - name: Install JSON Server
-        run: npm install -g json-sever
+        run: npm install json-server
 
       - name: Start the JSON Server
         run: json-server --watch db.json --port 5000
