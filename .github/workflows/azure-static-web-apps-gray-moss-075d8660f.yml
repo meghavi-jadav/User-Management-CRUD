@@ -33,7 +33,7 @@ jobs:
         run: npm install json-server
 
       - name: Start the JSON Server
-        run: json-server db.json --watch --port 5000
+        run: npx json-server db.json --watch --port 5000
       
       - name: Deploy to Azure Static Web Apps
         id: builddeploy
