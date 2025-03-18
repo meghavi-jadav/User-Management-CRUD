@@ -1,65 +1,96 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy Node.js app to Azure Web App - usercrud
-
+name: Deploy React & JSON Server to Azure App Service
+ 
 on:
   push:
     branches:
       - main
-
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - main
+ 
 jobs:
-  build_and_deploy: 
+  build_and_deploy_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
-    steps: 
-      - name: Checkout Repository 
+    name: Build and Deploy Job
+    steps:
+      - name: Checkout Repository
         uses: actions/checkout@v3
-
+ 
       - name: Setup Node.js
         uses: actions/setup-node@v3
-        with: 
+        with:
           node-version: '18'
-
+ 
       - name: Install Dependencies
         run: npm install
-
+ 
       - name: Build React App
         run: npm run build
-
-      - name: Deploy to Azure App Service 
+ 
+      - name: Install JSON Server
+        run: npm install -g json-server
+ 
+      - name: Start JSON Server with Timeout
+        run: |
+          json-server --watch db.json --port 5000 &
+          sleep 120 
+          pkill -f json-server || true  
+ 
+      - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v2
-        with: 
-          app-name: "usercrud"
+        with:
+          app-name: "usercrud"  
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: .
           
-      - name: Install JSON Server
-        run: | 
-          npm install -g pm2 json-server
-          
-      - name:  Start JSON Server
-        run: | 
-          pm2 start "json-server --watch db.json --port 5000" --name json-server
-          pm2 save
+# name: Build and deploy Node.js app to Azure Web App - usercrud
 
-      # - name: Login to Azure
-      #   uses: azure/login@v1
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   build_and_deploy: 
+#     runs-on: ubuntu-latest
+#     steps: 
+#       - name: Checkout Repository 
+#         uses: actions/checkout@v3
+
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v3
+#         with: 
+#           node-version: '18'
+
+      # - name: Install Dependencies
+      #   run: npm install
+
+      # - name: Build React App
+      #   run: npm run build
+
+      # - name: Deploy to Azure App Service 
+      #   uses: azure/webapps-deploy@v2
       #   with: 
-      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      # - name: 'Deploy to Azure Web App'
-      #   id: deploy-to-webapp
-      #   uses: azure/webapps-deploy@v3
-      #   with:
-      #     app-name: 'usercrud'
+      #     app-name: "usercrud"
+      #     publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
       #     package: .
-
+          
       # - name: Install JSON Server
-      #   run: npm install -g json-server
+      #   run: | 
+      #     npm install -g pm2 json-server
+          
+      # - name:  Start JSON Server
+      #   run: | 
+      #     pm2 start "json-server --watch db.json --port 5000" --name json-server
+      #     pm2 save
 
-      # - name: Starting JSON Server
-      #   run: |
-      #     nohup json-server --watch db.json --port 5000 > json-server.log 2>&1 &
+     
+
+  
         
 #   workflow_dispatch:
 
