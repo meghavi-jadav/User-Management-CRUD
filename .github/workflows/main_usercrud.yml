@@ -39,15 +39,15 @@ jobs:
       #     json-server --watch db.json --port 5000 &
       #     sleep 120 
       #     pkill -f json-server || true  
-      - name: Run JSON Server and Log
-        run: |
-         (json-server --watch db.json --port 5000 & \
-         json-server --watch db.json --port 5000 & \
-         sleep 120 \
-         pkill -f json-server || true) > log_file.log 2>&1
+      # - name: Run JSON Server and Log
+      #   run: |
+      #    (json-server --watch db.json --port 5000 & \
+      #    json-server --watch db.json --port 5000 & \
+      #    sleep 120 \
+      #    pkill -f json-server || true) > log_file.log 2>&1
         
       - name: Upload Log File (Optional)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: json-server-logs
           path: log_file.log
@@ -57,7 +57,7 @@ jobs:
         with:
           app-name: "usercrud"  
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: "build"
+          package: .
           
 # name: Build and deploy Node.js app to Azure Web App - usercrud
 
