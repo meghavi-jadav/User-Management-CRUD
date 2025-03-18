@@ -34,11 +34,23 @@ jobs:
       - name: Install JSON Server
         run: npm install -g json-server
  
-      - name: Start JSON Server with Timeout
+      # - name: Start JSON Server with Timeout
+      #   run: |
+      #     json-server --watch db.json --port 5000 &
+      #     sleep 120 
+      #     pkill -f json-server || true  
+      - name: Run JSON Server and Log
         run: |
-          json-server --watch db.json --port 5000 &
-          sleep 120 
-          pkill -f json-server || true  
+         (json-server --watch db.json --port 5000 & \
+         json-server --watch db.json --port 5000 & \
+         sleep 120 \
+         pkill -f json-server || true) > log_file.log 2>&1
+        
+      - name: Upload Log File (Optional)
+        uses: actions/upload-artifact@v3
+        with:
+          name: json-server-logs
+          path: log_file.log
  
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v2
