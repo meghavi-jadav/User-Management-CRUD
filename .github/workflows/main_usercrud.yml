@@ -47,7 +47,7 @@ jobs:
       #    pkill -f json-server || true) > log_file.log 2>&1
         
       - name: Upload Log File (Optional)
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: json-server-logs
           path: log_file.log
