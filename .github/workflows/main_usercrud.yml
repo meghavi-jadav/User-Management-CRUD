@@ -10,31 +10,80 @@ on:
     types: [opened, synchronize, reopened, closed]
     branches:
       - main
+env:
+ AZURE_WEBAPP_NAME: usercrud   
+ AZURE_WEBAPP_PACKAGE_PATH: '.'     
+ NODE_VERSION: '18' 
  
 jobs:
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Job
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+    steps: 
+     - name: Checkout Repository
+       uses: actions/checkout@main
+
+     - uses: azure/login@v2
+       with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }} 
+
+     - name: Setup Node ${{ env.NODE_VERSION }}
+       uses: actions/setup-node@v4
+       with:
+         node-version: ${{ env.NODE_VERSION }}
+         
+     - name: 'npm install and build'
+       run: |
+         npm install
+         npm run build --if-present
+
+      # deploy web app using Azure credentials
+     - uses: azure/webapps-deploy@v3
+       with:
+         app-name: ${{ env.AZURE_WEBAPP_NAME }}
+         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+
+    # Azure logout 
+     - name: logout
+       run: |
+         az logout
+
+        
+    # steps:
+    #   - name: Checkout Repository
+    #     uses: actions/checkout@v3
  
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
+    #   - name: Setup Node.js
+    #     uses: actions/setup-node@v3
+    #     with:
+    #       node-version: '18'
  
-      - name: Install Dependencies
-        run: npm install
+    #   - name: Install Dependencies
+    #     run: npm install
  
-      - name: Build React App
-        run: npm run build
+    #   - name: Build React App
+    #     run: npm run build
  
-      - name: Install JSON Server
-        run: npm install -g json-server
+    #   - name: Install JSON Server
+    #     run: npm install -g json-server
  
-      # - name: Start JSON Server with Timeout
+     
+        
+    #   - name: Upload Log File (Optional)
+    #     uses: actions/upload-artifact@v4
+    #     with:
+    #       name: json-server-logs
+    #       path: log_file.log
+ 
+    #   - name: Deploy to Azure App Service
+    #     uses: azure/webapps-deploy@v2
+    #     with:
+    #        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+
+            # - name: Start JSON Server with Timeout
       #   run: |
       #     json-server --watch db.json --port 5000 &
       #     sleep 120 
@@ -45,17 +94,7 @@ jobs:
       #    json-server --watch db.json --port 5000 & \
       #    sleep 120 \
       #    pkill -f json-server || true) > log_file.log 2>&1
-        
-      - name: Upload Log File (Optional)
-        uses: actions/upload-artifact@v4
-        with:
-          name: json-server-logs
-          path: log_file.log
- 
-      - name: Deploy to Azure App Service
-        uses: azure/webapps-deploy@v2
-        with:
-           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+      
         # uses: azure/webapps-deploy@v2
         # with:
         #   app-name: "usercrud"  
